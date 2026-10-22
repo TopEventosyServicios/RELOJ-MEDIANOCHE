@@ -1,0 +1,53 @@
+TOP EVENTOS · COTILLÓN 26/27
+EL SECRETO DE MEDIANOCHE
+
+FECHA CONFIGURADA
+Sábado 7 de noviembre de 2026, a las 20:00, hora de España peninsular.
+La fecha la ha indicado el usuario; la hora de las 20:00 se ha usado como referencia.
+La cuenta atrás es la misma para todos y no se reinicia al entrar o recargar.
+
+CÓMO PUBLICAR EN UN REPOSITORIO NUEVO
+1. Descomprime este ZIP. No subas el ZIP directamente a GitHub.
+2. Entra en https://github.com/new con tu cuenta TopEventosyServicios.
+3. Nombre sugerido: MEDIANOCHE-26-27. Marca Public y pulsa Create repository.
+4. Pulsa uploading an existing file. Si ya hay archivos: Add file > Upload files.
+5. Arrastra TODOS los archivos descomprimidos SUELTOS, sin la carpeta que los contiene.
+   index.html tiene que quedar en la primera pantalla del repositorio.
+6. Confirma la subida con Commit changes (o el botón equivalente de confirmación).
+7. Abre Settings > Pages.
+8. Source: Deploy from a branch. Branch: main. Folder: / (root). Pulsa Save.
+9. Espera a que termine la publicación. En Settings > Pages encontrarás Visit site.
+
+Si usas ese nombre y esa cuenta, el enlace esperado, UNA VEZ PUBLICADO, será:
+https://topeventosyservicios.github.io/MEDIANOCHE-26-27/
+
+Esta entrega no ha creado el repositorio ni publicado la web.
+Usa un repositorio nuevo para conservar las experiencias anteriores.
+
+FUNCIONAMIENTO
+Gira sobre el reloj en sentido horario o pulsa DESCUBRIR EL SECRETO.
+Al llegar a las doce aparecen luz, partículas doradas y el anuncio con la cuenta atrás.
+Hay botones para guardar la fecha en el calendario y compartir el enlace.
+En algunos móviles, el archivo de calendario se descarga: hay que abrirlo para importarlo.
+No se piden permisos de notificaciones ni se envían recordatorios desde la web.
+La experiencia es silenciosa. Funciona sin servicios externos ni instalaciones.
+Con movimiento reducido, el anuncio aparece directamente tras pulsar.
+También se puede usar el teclado: flechas para avanzar y Fin o Enter para descubrir.
+VOLVER A VER EL RELOJ repite la experiencia sin cambiar la cuenta atrás real.
+
+CAMBIAR LA FECHA U HORA MÁS ADELANTE
+Abre config.js y cambia fechaAnuncio. En noviembre, +01:00 es la hora peninsular.
+Por ejemplo: 2026-11-07T20:00:00+01:00 significa 7/11/2026 a las 20:00.
+Guarda y vuelve a subir config.js. Si cambias también la fecha de la campaña, actualiza
+el texto de respaldo de index.html dentro de <noscript>.
+
+AL TERMINAR LA CUENTA ATRÁS
+El contador se queda a cero y aparece el aviso de que ha llegado la fecha.
+La web no inventa precios, disponibilidad ni detalles de una sorpresa aún no facilitada.
+Cuando tengas el enlace del anuncio definitivo, puedes ponerlo entre las comillas
+de enlaceAnuncio en config.js. Desde la fecha configurada aparecerá DESCUBRIR EL ANUNCIO.
+Si enlaceAnuncio está vacío, se mostrará el mensaje para consultar las novedades de TOP EVENTOS.
+
+DOCUMENTACIÓN DE GITHUB
+https://docs.github.com/en/repositories/working-with-files/managing-files/adding-a-file-to-a-repository
+https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site
