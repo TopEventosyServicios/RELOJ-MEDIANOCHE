@@ -4,20 +4,23 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#0c0d0b">
-  <meta name="cotillon-version" content="medianoche-oro-movil-5">
+  <meta name="cotillon-version" content="medianoche-oro-clasico-6">
   <meta name="description" content="Hay momentos que merecen la espera. Lleva las agujas a medianoche y descubre el próximo anuncio de TOP EVENTOS para el Cotillón 26/27.">
   <meta property="og:title" content="Algo grande está a punto de pasar · Cotillón 26/27">
   <meta property="og:description" content="Un reloj. Un secreto. Lleva las agujas a medianoche y descubre la fecha.">
   <meta property="og:type" content="website">
   <title>El secreto de medianoche · Cotillón 26/27</title>
+  <link rel="preload" as="image" href="esfera-reloj.png?v=oro-clasico-6">
+  <link rel="preload" as="image" href="oro-respaldo.svg?v=oro-clasico-6">
   <link rel="icon" href="top-eventos.png" type="image/png">
-  <link rel="stylesheet" href="estilo.css?v=medianoche-oro-movil-5">
-  <script src="config.js?v=medianoche-oro-movil-5" defer></script>
-  <script src="reloj.js?v=medianoche-oro-movil-5" defer></script>
+  <link rel="stylesheet" href="estilo.css?v=medianoche-oro-clasico-6">
+  <script src="config.js?v=medianoche-oro-clasico-6" defer></script>
+  <script src="reloj.js?v=medianoche-oro-clasico-6" defer></script>
 </head>
 <body>
   <div class="ambient" aria-hidden="true"></div>
-  <div id="gold" aria-hidden="true" data-active="false" hidden></div>
+  <canvas id="gold" aria-hidden="true" data-active="false" hidden></canvas>
+  <img id="gold-backup" src="oro-respaldo.svg?v=oro-clasico-6" alt="" aria-hidden="true" hidden>
   <header class="masthead">
     <a class="brand" href="./" aria-label="TOP EVENTOS · inicio"><img src="top-eventos.png" width="274" height="283" alt="TOP EVENTOS"></a>
     <span class="edition">COTILLÓN <b>26 / 27</b></span>
@@ -45,7 +48,7 @@
         </div>
         <p class="expiry-notice" id="expiry-notice" hidden>Ha llegado la fecha. Consulta las novedades de TOP EVENTOS para descubrir el anuncio.</p>
         <a id="announcement-link" class="gold-button" hidden>DESCUBRIR EL ANUNCIO <span aria-hidden="true">↗</span></a>
-        <div class="reveal-actions"><button id="calendar" class="text-button" type="button">GUARDAR LA FECHA <span aria-hidden="true">↗</span></button><button id="share" class="text-button" type="button">COMPARTIR <span aria-hidden="true">↗</span></button></div>
+        <div class="reveal-actions"><button id="calendar" class="text-button" type="button">GUARDAR LA FECHA <span aria-hidden="true">↗</span></button><button id="share" class="text-button" type="button">COMPARTIR <span aria-hidden="true">↗</span></button><button id="gold-replay" class="text-button" type="button">VER EL ESTALLIDO <span aria-hidden="true">✦</span></button></div>
         <p id="share-status" class="share-status" role="status"></p>
       </section>
     </div>
@@ -56,37 +59,12 @@
         <span class="orbit-label top" aria-hidden="true">EL TIEMPO GUARDA LA RESPUESTA</span>
         <div id="clock" class="clock" role="slider" tabindex="0" aria-label="Gira las agujas hasta medianoche. También puedes pulsar para avanzar." aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="Las diez y diez. Gira hasta medianoche." aria-orientation="horizontal" aria-describedby="hint">
           <svg viewBox="0 0 600 600" role="img" aria-label="Reloj negro con bisel y agujas doradas" id="clock-svg">
-            <defs>
-              <clipPath id="face-clip"><circle cx="300" cy="300" r="254"/></clipPath>
-              <radialGradient id="face"><stop stop-color="#20231e"/><stop offset=".6" stop-color="#10130f"/><stop offset="1" stop-color="#080b08"/></radialGradient>
-              <linearGradient id="gold-metal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#4e391b"/><stop offset=".17" stop-color="#e1bb6d"/><stop offset=".29" stop-color="#fff0bd"/><stop offset=".46" stop-color="#96703b"/><stop offset=".6" stop-color="#f3d993"/><stop offset=".81" stop-color="#88602e"/><stop offset="1" stop-color="#c79b51"/></linearGradient>
-              <linearGradient id="bezel" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fcdfa0"/><stop offset=".24" stop-color="#94713d"/><stop offset=".5" stop-color="#372a1b"/><stop offset=".7" stop-color="#cda762"/><stop offset="1" stop-color="#f1d994"/></linearGradient>
-              <linearGradient id="glass" x1="0" y1="0" x2=".7" y2="1"><stop stop-color="#fff" stop-opacity=".11"/><stop offset=".48" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff" stop-opacity=".025"/></linearGradient>
-              <radialGradient id="hub"><stop stop-color="#fff2c9"/><stop offset=".3" stop-color="#ebc776"/><stop offset=".6" stop-color="#896331"/><stop offset=".85" stop-color="#f9dc9b"/><stop offset="1" stop-color="#634a28"/></radialGradient>
-              <filter id="hand-shadow" x="-90%" y="-50%" width="280%" height="220%"><feDropShadow dx="3" dy="5" stdDeviation="3" flood-color="#000" flood-opacity=".9"/></filter>
-              <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".65" numOctaves="3" seed="12"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope=".055"/></feComponentTransfer><feBlend in="SourceGraphic" mode="soft-light"/></filter>
-            </defs>
-            <circle cx="300" cy="310" r="282" fill="#000" opacity=".55"/>
-            <circle cx="300" cy="300" r="282" fill="#151710" stroke="#030403" stroke-width="4"/>
-            <circle cx="300" cy="300" r="277" fill="url(#bezel)"/>
-            <circle cx="300" cy="300" r="271" fill="none" stroke="#fff1c0" stroke-opacity=".35" stroke-width="1"/>
-            <circle cx="300" cy="300" r="265" fill="#332a1c"/>
-            <circle cx="300" cy="300" r="261" fill="url(#gold-metal)"/>
-            <circle cx="300" cy="300" r="254" fill="url(#face)" filter="url(#grain)" clip-path="url(#face-clip)"/>
-            <circle cx="300" cy="300" r="248" fill="none" stroke="#d8b16a" stroke-opacity=".5"/>
-            <circle cx="300" cy="300" r="228" fill="none" stroke="#c9a15d" stroke-opacity=".2" stroke-width=".6"/>
-            <g id="ticks" aria-hidden="true"></g>
-            <g id="numerals" fill="url(#gold-metal)" font-family="Georgia,serif" font-size="37" text-anchor="middle" dominant-baseline="central" aria-hidden="true"></g>
-            <text x="300" y="219" class="dial-brand" text-anchor="middle" fill="#d9bc7e" font-size="13" letter-spacing="4">TOP EVENTOS</text>
-            <path d="M281 239H319M288 243H312" fill="none" stroke="#b28e4c" stroke-width=".6"/>
-            <text x="300" y="385" text-anchor="middle" fill="#ab9362" font-family="Georgia,serif" font-size="14" font-style="italic" letter-spacing="2">Cotillón 26/27</text>
-            <text x="300" y="408" text-anchor="middle" fill="#857447" font-size="8" letter-spacing="4">MINUIT · MEDIANOCHE</text>
-            <g id="hour-hand" transform="rotate(305 300 300)" filter="url(#hand-shadow)"><path d="M300 150 310 195 305 302 300 321 295 302 290 195Z" fill="url(#gold-metal)" stroke="#dfbd78" stroke-width=".6"/><path d="M300 167V304" stroke="#fff1b8" stroke-opacity=".65" stroke-width="1"/></g>
-            <g id="minute-hand" transform="rotate(60 300 300)" filter="url(#hand-shadow)"><path d="M300 87 305 125 303 307 300 328 297 307 295 125Z" fill="url(#gold-metal)" stroke="#f0d598" stroke-width=".5"/><path d="M300 105V310" stroke="#fff3cd" stroke-opacity=".8" stroke-width=".8"/></g>
+            <defs><linearGradient id="gold-metal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#4e391b"/><stop offset=".17" stop-color="#e1bb6d"/><stop offset=".29" stop-color="#fff0bd"/><stop offset=".46" stop-color="#96703b"/><stop offset=".6" stop-color="#f3d993"/><stop offset=".81" stop-color="#88602e"/><stop offset="1" stop-color="#c79b51"/></linearGradient><radialGradient id="hub"><stop stop-color="#fff2c9"/><stop offset=".3" stop-color="#ebc776"/><stop offset=".6" stop-color="#896331"/><stop offset=".85" stop-color="#f9dc9b"/><stop offset="1" stop-color="#634a28"/></radialGradient></defs>
+            <image id="clock-face-image" href="esfera-reloj.png?v=oro-clasico-6" x="0" y="0" width="600" height="600"/>
+            <g id="hour-hand" transform="rotate(305 300 300)"><path d="M300 150 310 195 305 302 300 321 295 302 290 195Z" fill="url(#gold-metal)" stroke="#dfbd78" stroke-width=".6"/><path d="M300 167V304" stroke="#fff1b8" stroke-opacity=".65" stroke-width="1"/></g>
+            <g id="minute-hand" transform="rotate(60 300 300)"><path d="M300 87 305 125 303 307 300 328 297 307 295 125Z" fill="url(#gold-metal)" stroke="#f0d598" stroke-width=".5"/><path d="M300 105V310" stroke="#fff3cd" stroke-opacity=".8" stroke-width=".8"/></g>
             <g id="second-hand" class="second-hand"><path d="M300 78V338" stroke="#caa35b" stroke-width="1"/><circle cx="300" cy="333" r="6" fill="none" stroke="#caa35b" stroke-width="1"/></g>
             <circle cx="300" cy="300" r="13" fill="url(#hub)" stroke="#edcf8c" stroke-width=".5"/><circle cx="300" cy="300" r="3" fill="#a98040"/>
-            <circle cx="300" cy="300" r="253" fill="url(#glass)" pointer-events="none"/>
-            <path d="M98 164C146 82 273 47 367 78" fill="none" stroke="#fff4cb" stroke-opacity=".18" stroke-width="2"/>
             <circle id="progress-ring" cx="300" cy="300" r="291" fill="none" stroke="#eed394" stroke-width="1.7" stroke-dasharray="1828.407" stroke-dashoffset="1828.407" transform="rotate(-90 300 300)"/>
           </svg>
           <span class="midnight-glow" aria-hidden="true"></span>

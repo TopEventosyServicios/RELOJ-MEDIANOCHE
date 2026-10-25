@@ -16,21 +16,6 @@
   $('date-day').textContent = dateLabel.toLocaleUpperCase('es-ES');
   $('date-hour').textContent = `${year} · ${hourLabel} H · HORA PENINSULAR`;
 
-  const ns = 'http://www.w3.org/2000/svg';
-  for (let i = 0; i < 60; i++) {
-    const tick = document.createElementNS(ns, 'line');
-    const major = i % 5 === 0;
-    Object.entries({ x1: 300, x2: 300, y1: 58, y2: major ? 75 : 66, stroke: major ? '#dfc385' : '#a38d5b', 'stroke-width': major ? 2 : .7, opacity: major ? .9 : .55, transform: `rotate(${i * 6} 300 300)` }).forEach(([k,v]) => tick.setAttribute(k,v));
-    $('ticks').append(tick);
-  }
-  const romans = ['XII','I','II','III','IV','V','VI','VII','VIII','IX','X','XI'];
-  romans.forEach((label, i) => {
-    const a = i * Math.PI / 6, node = document.createElementNS(ns, 'text');
-    node.setAttribute('x', 300 + Math.sin(a) * 196);
-    node.setAttribute('y', 300 - Math.cos(a) * 196);
-    node.textContent = label; $('numerals').append(node);
-  });
-
   const clock = $('clock'), discover = $('discover'), body = document.body;
   let state = 'locked', progress = 0, animation = 0, revealTimer = 0, drag = null;
   const clamp = n => Math.max(0, Math.min(1, n));
@@ -71,19 +56,18 @@
   function midnight() {
     if (state === 'striking' || state === 'revealed') return;
     state = 'striking'; clock.setAttribute('aria-disabled','true'); setProgress(1);
-    discover.disabled = true; discover.textContent = 'EL SECRETO ESTÁ A PUNTO DE REVELARSE';
+    discover.disabled=true;discover.textContent='EL SECRETO ESTÁ A PUNTO DE REVELARSE';
     body.classList.add('striking');
-    burstGold();
-    revealTimer = setTimeout(() => {
-      state = 'revealed'; body.classList.add('revealed');
-      $('teaser').hidden = true; $('reveal').hidden = false;
-      discover.hidden = true; $('replay').hidden = false; $('tiny-note').hidden = true;
-      $('hint').textContent = 'LA MEDIANOCHE GUARDA EL COMIENZO';
+    burstGold(()=>{
+      state='revealed';body.classList.add('revealed');
+      $('teaser').hidden=true;$('reveal').hidden=false;
+      discover.hidden=true;$('replay').hidden=false;$('tiny-note').hidden=true;
+      $('hint').textContent='LA MEDIANOCHE GUARDA EL COMIENZO';
       updateCountdown();
-      $('live').textContent = `La cuenta atrás ha comenzado. El ${dateLabel} de ${year}, a las ${hourLabel}, información sobre las entradas y una sorpresa.`;
-      $('reveal-title').focus({ preventScroll: true });
-      if (innerWidth <= 900) $('experience').scrollIntoView({ behavior: motion.matches ? 'instant' : 'smooth', block: 'start' });
-    }, motion.matches ? 0 : 1250);
+      $('live').textContent=`La cuenta atrás ha comenzado. El ${dateLabel} de ${year}, a las ${hourLabel}, información sobre las entradas y una sorpresa.`;
+      $('reveal-title').focus({preventScroll:true});
+      if(innerWidth<=900)$('experience').scrollIntoView({behavior:'instant',block:'start'});
+    });
   }
   function advance() {
     if (state !== 'locked') return;
@@ -173,77 +157,102 @@
     }
   });
 
-  // El oro se compone de elementos independientes: no depende de canvas,
-  // permisos multimedia ni de volver a dibujar al cambiar la barra del móvil.
-  const goldLayer = $('gold');
-  let goldTimer = 0, goldRemaining = 0, goldTimerStarted = 0, goldActive = false;
-  function stopGold() {
-    clearTimeout(goldTimer); goldTimer = 0; goldActive = false; goldRemaining = 0;
-    goldLayer.hidden = true; while(goldLayer.firstChild)goldLayer.removeChild(goldLayer.firstChild);
-    goldLayer.className = ''; goldLayer.dataset.active = 'false';
+  const goldCanvas=$('gold'),goldBackup=$('gold-backup');
+  let goldContext=null;
+  try{goldContext=goldCanvas.getContext('2d',{alpha:true});}catch{}
+  let goldFrame=0,goldWatchdog=0,goldLimit=0,goldStillTimer=0;
+  let goldReady=null,goldRunning=false,goldPaused=false,goldForced=false;
+  let goldElapsed=0,goldLast=0,goldWidth=0,goldHeight=0,goldFrames=0;
+  let goldOrigin=[0,0],goldFlakes=[],goldSprites=[];
+  function notifyGoldReady(){const ready=goldReady;goldReady=null;clearTimeout(goldWatchdog);if(ready)ready();}
+  function stopGold(){
+    cancelAnimationFrame(goldFrame);clearTimeout(goldWatchdog);clearTimeout(goldLimit);clearTimeout(goldStillTimer);
+    goldFrame=0;goldRunning=false;goldPaused=false;goldReady=null;
+    if(goldContext){goldContext.setTransform(1,0,0,1,0,0);goldContext.clearRect(0,0,goldCanvas.width,goldCanvas.height);}
+    goldCanvas.hidden=true;goldBackup.hidden=true;goldCanvas.dataset.active='false';
   }
-  function armGoldTimer(milliseconds) {
-    clearTimeout(goldTimer); goldRemaining = milliseconds; goldTimerStarted = performance.now();
-    goldTimer = setTimeout(stopGold, milliseconds);
+  function prepareGoldSprites(){
+    if(goldSprites.length)return true;
+    try{
+      for(let i=0;i<24;i++){
+        const size=1+(i%8)*.5,c=document.createElement('canvas');c.width=c.height=24;
+        const p=c.getContext('2d',{alpha:true});if(!p)return false;
+        p.shadowColor='#f2d585';p.shadowBlur=5;p.fillStyle=i<8?'#f8df99':i<16?'#c6a35f':'#e6bf6d';
+        p.fillRect(12-size/2,12-size*.32,size,size*.64);goldSprites.push(c);
+      }
+      return true;
+    }catch{return false;}
   }
-  function pauseGold() {
-    if (!goldActive || goldLayer.classList.contains('gold-paused')) return;
-    clearTimeout(goldTimer); goldRemaining = Math.max(1, goldRemaining - (performance.now() - goldTimerStarted));
-    goldLayer.classList.add('gold-paused');
+  function sizeGold(){
+    if(goldRunning||!goldContext)return;
+    goldWidth=Math.max(1,innerWidth);goldHeight=Math.max(1,innerHeight);
+    // El lienzo no supera 0,5 megapíxeles, incluso en pantallas Retina.
+    const ratio=Math.min(1.25,720/goldWidth,960/goldHeight,Math.sqrt(500000/(goldWidth*goldHeight)));
+    goldCanvas.width=Math.round(goldWidth*ratio);goldCanvas.height=Math.round(goldHeight*ratio);
+    goldContext.setTransform(goldCanvas.width/goldWidth,0,0,goldCanvas.height/goldHeight,0,0);
   }
-  function resumeGold() {
-    if (!goldActive || document.hidden) return;
-    goldLayer.classList.remove('gold-paused'); armGoldTimer(goldRemaining || 8200);
+  function stillGold(){
+    cancelAnimationFrame(goldFrame);goldRunning=false;goldCanvas.hidden=true;goldBackup.hidden=false;
+    goldCanvas.dataset.active='true';goldCanvas.dataset.mode='still';
+    notifyGoldReady();goldStillTimer=setTimeout(stopGold,8000);
   }
-  function burstGold() {
-    stopGold();
-    goldLayer.hidden = false;
-    goldLayer.classList.toggle('gold-still', motion.matches);
-    const rect = goldLayer.getBoundingClientRect(), clockRect = clock.getBoundingClientRect();
-    const sx = Math.max(.12, Math.min(.88, (clockRect.left + clockRect.width/2 - rect.left) / Math.max(rect.width,1)));
-    const sy = Math.max(.22, Math.min(.75, (clockRect.top + clockRect.height/2 - rect.top) / Math.max(rect.height,1)));
-    const fragment = document.createDocumentFragment();
-    let seed = 26272026;
-    const random = () => { seed = (Math.imul(seed,1664525)+1013904223) >>> 0; return seed/4294967296; };
-    for (let i=0; i<176; i++) {
-      const falling = i>=128, star = i%8===0;
-      const angle = random()*Math.PI*2, distance = .32+random()*.63;
-      const endX = Math.max(.02,Math.min(.98,sx+Math.cos(angle)*distance*.9));
-      const endY = Math.max(.02,Math.min(.98,sy+Math.sin(angle)*distance*.9));
-      const px = falling ? random() : sx, py = falling ? -.06-random()*.12 : sy;
-      const dx = falling ? (random()-.5)*24 : (endX-sx)*100;
-      const dy = falling ? 122 : (endY-sy)*100;
-      const size = star ? 11+random()*7 : 5+random()*6;
-      const span = document.createElement('span');
-      span.className = 'gold-piece'+(star?' gold-star':'')+(falling?' gold-falling':'');
-      const style=span.style;
-      style.setProperty('--sx',(px*100).toFixed(3)+'%'); style.setProperty('--sy',(py*100).toFixed(3)+'%');
-      style.setProperty('--dx',dx.toFixed(3)+'vw'); style.setProperty('--dy',dy.toFixed(3)+'vh');
-      style.setProperty('--turn',((random()-.5)*1080).toFixed(2)+'deg');
-      style.setProperty('--duration',(falling?5.4+random()*1.2:2.8+random()*1.8).toFixed(3)+'s');
-      style.setProperty('--delay',(falling?.25+random()*1.1:(i%3)*.11+random()*.08).toFixed(3)+'s');
-      style.setProperty('--still-x',(random()*96+2).toFixed(3)+'%');
-      style.setProperty('--still-y',(random()*94+3).toFixed(3)+'%');
-      // Tamaños y color de respaldo para una hoja de estilos aún no disponible.
-      style.width=size.toFixed(2)+'px'; style.height=(star?size:size*(.45+random()*.6)).toFixed(2)+'px';
-      style.backgroundColor = i%3===0 ? '#fff0a9' : '#e9ba4f';
-      fragment.appendChild(span);
+  function paintGold(t){
+    const p=goldContext;p.clearRect(0,0,goldWidth,goldHeight);
+    const displacement=(1-Math.exp(-.9*t))/.9;
+    for(const f of goldFlakes){
+      if(t>=f.life)continue;
+      const alpha=Math.min(1,t/.1)*Math.min(1,(f.life-t)/1.5)*(.57+Math.sin(f.phase+t*3)*.23);
+      const x=Math.round(goldOrigin[0]+f.vx*displacement),y=Math.round(goldOrigin[1]+f.vy*t+7.5*t*t);
+      p.save();p.translate(x,y);p.rotate(f.spin+t*.8);p.globalAlpha=alpha;
+      p.scale(1,Math.max(.24,Math.abs(Math.cos(f.phase+t*2))));p.drawImage(goldSprites[f.sprite],-12,-12);p.restore();
     }
-    goldLayer.appendChild(fragment); goldActive = true;
-    goldLayer.dataset.active = 'true'; goldLayer.dataset.mode = motion.matches?'still':'animated';
-    goldLayer.dataset.count = '176';
-    armGoldTimer(8200);
-    if (document.hidden) pauseGold();
+    goldFrames++;if(goldFrames%8===0)goldCanvas.dataset.frames=String(goldFrames);
   }
-  document.addEventListener('visibilitychange', () => document.hidden ? pauseGold() : resumeGold());
-  addEventListener('pagehide', pauseGold);
-  addEventListener('pageshow', () => { if(goldActive&&goldLayer.classList.contains('gold-paused'))resumeGold(); });
-  motion.addEventListener('change', () => {
-    if (motion.matches) {
-      if (goldActive) {goldLayer.classList.add('gold-still');goldLayer.dataset.mode='still';}
-      if (state==='winding') {cancelAnimationFrame(animation);midnight();}
+  function drawGold(now){
+    if(!goldRunning||goldPaused)return;
+    if(now-goldLast<32){goldFrame=requestAnimationFrame(drawGold);return;}
+    const dt=Math.min((now-goldLast)/1000,.05);goldLast=now;goldElapsed+=dt;
+    try{paintGold(goldElapsed);}catch{stillGold();return;}
+    if(goldElapsed>=1.05)notifyGoldReady();
+    if(goldElapsed<8)goldFrame=requestAnimationFrame(drawGold);else{notifyGoldReady();stopGold();}
+  }
+  function burstGold(onReady,forceAnimation=false){
+    stopGold();goldReady=onReady||null;goldForced=forceAnimation;goldCanvas.dataset.frames='0';
+    if((motion.matches&&!forceAnimation)||!goldContext||!prepareGoldSprites()){stillGold();return;}
+    sizeGold();goldCanvas.hidden=false;goldCanvas.dataset.active='true';goldCanvas.dataset.mode='animated';
+    const r=clock.getBoundingClientRect();
+    goldOrigin=[Math.max(20,Math.min(goldWidth-20,r.left+r.width/2)),Math.max(40,Math.min(goldHeight-40,r.top+r.height/2))];
+    let seed=26272026;const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
+    goldFlakes=Array.from({length:130},()=>{const a=random()*Math.PI*2,speed=45+random()*210;return {vx:Math.cos(a)*speed,vy:Math.sin(a)*speed-45,sprite:Math.floor(random()*24),spin:random()*6.3,phase:random()*6.3,life:3+random()*5};});
+    goldElapsed=.08;goldFrames=0;goldRunning=true;goldPaused=false;goldLast=performance.now();
+    goldCanvas.dataset.count='130';goldCanvas.dataset.pixels=String(goldCanvas.width*goldCanvas.height);
+    try{paintGold(goldElapsed);}catch{stillGold();return;}
+    goldWatchdog=setTimeout(notifyGoldReady,5000);
+    goldLimit=setTimeout(()=>{notifyGoldReady();stopGold();},16000);
+    goldFrame=requestAnimationFrame(drawGold);
+  }
+  function pauseGold(){
+    if(!goldRunning||goldPaused)return;goldPaused=true;
+    cancelAnimationFrame(goldFrame);clearTimeout(goldWatchdog);clearTimeout(goldLimit);
+  }
+  function resumeGold(){
+    if(!goldRunning||!goldPaused||document.hidden)return;
+    goldPaused=false;goldLast=performance.now();
+    if(goldReady)goldWatchdog=setTimeout(notifyGoldReady,5000);
+    goldLimit=setTimeout(()=>{notifyGoldReady();stopGold();},16000);
+    goldFrame=requestAnimationFrame(drawGold);
+  }
+  $('gold-replay').addEventListener('click',()=>burstGold(null,true));
+  document.addEventListener('visibilitychange',()=>document.hidden?pauseGold():resumeGold());
+  addEventListener('pagehide',pauseGold);addEventListener('pageshow',resumeGold);
+  addEventListener('resize',sizeGold,{passive:true});
+  motion.addEventListener('change',()=>{
+    if(motion.matches){
+      if(goldRunning&&!goldForced)stillGold();
+      if(state==='winding'){cancelAnimationFrame(animation);midnight();}
     }
   });
+  setTimeout(prepareGoldSprites,0);
 
   setProgress(0);
 })();
