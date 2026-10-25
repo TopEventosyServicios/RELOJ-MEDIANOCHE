@@ -43,9 +43,54 @@
  .flash{background:radial-gradient(ellipse at 50% 60%,#ffe9a32e,transparent 63%)}
 }
 
-/* El movimiento del oro se reproduce como medio; no se dibuja con JavaScript. */
-#gold-film{position:fixed;inset:0;z-index:20;pointer-events:none;mix-blend-mode:screen;overflow:hidden}
-#gold-film video,#gold-film img{position:absolute;left:var(--gold-x,50%);top:var(--gold-y,50%);transform:translate(-50%,-50%);width:600px;height:1066.667px;max-width:none;object-fit:fill;pointer-events:none}
-#gold-film video{filter:brightness(1.2) contrast(1.35)}
-.striking .flash,.striking .midnight-glow{display:none}
-.striking .gold-button:after{animation:none}
+/* Apertura: dos imágenes precortadas, sin máscaras, filtros ni dibujo continuo. */
+html{scroll-behavior:auto}
+.ambient,.clock-halo,.flash,.midnight-glow{display:none}
+.clock{filter:none;isolation:auto}
+.gold-button:after{display:none}
+.reveal{animation:none}
+.clock-secret{position:absolute;inset:4%;border-radius:50%;border:1px solid #b5995b88;background:radial-gradient(circle at 50% 38%,#252116,#10110e 70%);display:flex;align-items:center;justify-content:center;flex-direction:column;visibility:hidden;color:#edd095;pointer-events:none}
+.secret-kicker{font-size:8px;letter-spacing:2px;color:#c4b28d;margin-bottom:25px}
+.secret-weekday{font-size:10px;letter-spacing:3px;color:#ddd3bb;margin-bottom:10px}
+.clock-secret strong{font:clamp(22px,3.2vw,42px) Georgia,'Times New Roman',serif;letter-spacing:1px;color:#f3dca4;white-space:nowrap}
+.secret-hour{font:clamp(45px,5.7vw,72px) Georgia,'Times New Roman',serif;letter-spacing:1px;line-height:1.1;margin-top:4px;color:#edd095}
+.secret-rule{width:42px;height:1px;background:#b99c64;margin:18px 0}
+.clock-secret small{font-size:8px;letter-spacing:1.5px;line-height:1.8;color:#d0c4a7;text-align:center}
+.clock-doors{position:absolute;inset:0;pointer-events:none;visibility:hidden}
+.clock-door{position:absolute;top:0;width:50%;height:100%;display:block;object-fit:fill;max-width:none}
+.door-left{left:0}.door-right{right:0}
+.gold-seam{position:absolute;left:calc(50% - 1px);top:3%;height:94%;width:2px;background:#f4da99;opacity:0;transform:scaleY(.05);transform-origin:center}
+.doors-ready .clock-door{will-change:transform,opacity}
+.opening #clock-svg,.revealed #clock-svg{visibility:hidden}
+.opening .clock-secret,.opening .clock-doors,.revealed .clock-secret{visibility:visible}
+.opening .gold-seam{animation:seam-open .42s ease-out both}
+.opening .door-left{animation:door-left-open 1.15s cubic-bezier(.22,.68,.25,1) .24s both}
+.opening .door-right{animation:door-right-open 1.15s cubic-bezier(.22,.68,.25,1) .24s both}
+.opening .clock,.revealed .clock{cursor:default}
+.opening .second-hand{animation:none}
+.revealed .clock-door{visibility:hidden}
+.revealed .clock-controls{display:none}
+.revealed .hour-mark{visibility:hidden}
+.revealed .clock-wrap{width:min(100%,500px)}
+.reveal .replay{margin-top:17px}
+@keyframes seam-open{0%{opacity:0;transform:scaleY(.05)}45%{opacity:1;transform:scaleY(1)}100%{opacity:0;transform:scaleY(1)}}
+@keyframes door-left-open{0%{transform:translateX(0);opacity:1}72%{opacity:1}100%{transform:translateX(-114%);opacity:0}}
+@keyframes door-right-open{0%{transform:translateX(0);opacity:1}72%{opacity:1}100%{transform:translateX(114%);opacity:0}}
+@media(max-width:900px){
+ .clock-secret strong{font-size:clamp(22px,7.3vw,29px)}
+ .secret-kicker{font-size:6px;letter-spacing:1.6px;margin-bottom:18px}
+ .secret-weekday{font-size:8px;letter-spacing:2.4px;margin-bottom:7px}
+ .secret-hour{font-size:clamp(43px,14vw,57px)}
+ .secret-rule{margin:13px 0;width:34px}
+ .clock-secret small{font-size:6px;letter-spacing:1px;line-height:1.8}
+ .revealed .story{gap:27px;padding-top:27px}
+ .revealed .clock-stage{order:0}
+ .revealed .intro{order:1}
+ .revealed .clock-wrap{width:min(100%,315px)}
+ .revealed .orbit-label{font-size:6px;letter-spacing:1.8px}
+ .reveal .replay{margin-top:15px}
+}
+@media(prefers-reduced-motion:reduce){
+ .opening .clock-door{visibility:hidden}
+ .opening .gold-seam{display:none}
+}

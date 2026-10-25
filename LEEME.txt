@@ -1,32 +1,31 @@
-TOP EVENTOS · RELOJ DE MEDIANOCHE · ORO EN VÍDEO · VERSIÓN 7
+TOP EVENTOS · RELOJ DE MEDIANOCHE · APERTURA EN DOS MITADES · VERSIÓN 8
 
-CÓMO SUBIRLO
-Descomprime el ZIP y sube todos sus archivos SUELTOS a RELOJ-MEDIANOCHE.
-No subas la carpeta ni el ZIP. Pulsa Commit changes y espera a que termine GitHub Pages.
-No necesitas borrar archivos anteriores ni cambiar el lenguaje que indica GitHub.
+SUBIR A GITHUB
+1. Descomprime el ZIP.
+2. Abre RELOJ-MEDIANOCHE > Add file > Upload files.
+3. Sube TODOS los archivos sueltos del ZIP, sin la carpeta.
+4. Pulsa Commit changes y espera a que termine la publicación de GitHub Pages.
+5. Abre https://topeventosyservicios.github.io/RELOJ-MEDIANOCHE/?v=apertura-8
 
-ARCHIVOS DE LA WEB
+ARCHIVOS
 index.html, estilo.css, reloj.js, config.js, top-eventos.png, esfera-reloj.png,
-estallido-oro.mp4, estallido-oro.webp y oro-poster.png.
-LEEME.txt es esta guía opcional.
+puerta-izquierda.png y puerta-derecha.png. LEEME.txt es esta guía opcional.
+No es necesario borrar archivos antiguos: los vídeos y efectos anteriores ya no se utilizan.
 
-ENLACE PARA PROBAR DESPUÉS DE SUBIRLO
-https://topeventosyservicios.github.io/RELOJ-MEDIANOCHE/?v=oro-video-7
+NUEVA EXPERIENCIA
+Al llegar a las doce aparece una línea dorada y la esfera se abre en dos mitades.
+Detrás se descubre el sábado 31 de octubre de 2026 a las 13:00, hora peninsular.
+Después aparecen la información, la sorpresa, la cuenta atrás, GUARDAR LA FECHA y COMPARTIR.
+VOLVER A VER EL RELOJ repite la apertura sin reiniciar la cuenta atrás real.
 
-CAMBIO PRINCIPAL
-El oro anterior está renderizado en un vídeo H.264 silencioso, sin controles y dentro de la página.
-Ya no utiliza un lienzo ni un bucle de JavaScript para mover las piezas.
-Si el navegador bloquea o detiene el vídeo, pasa a una imagen WebP animada transparente.
-La información aparece incluso cuando la reproducción no está disponible.
-Se prepara el vídeo durante el gesto de tocar el reloj o el botón.
-VER EL ESTALLIDO permite repetir solo el oro.
-Con Reducir movimiento activado, primero aparece oro quieto; el botón permite solicitar el movimiento.
-Se ha quitado el destello simultáneo para reducir el trabajo durante el estallido.
+RENDIMIENTO Y ACCESIBILIDAD
+La apertura mueve dos imágenes mediante transformaciones sencillas.
+No se utilizan vídeo, imágenes animadas, partículas, lienzos ni dibujos por fotograma durante la apertura.
+Los movimientos reducidos muestran directamente la fecha y la información.
+Aunque se omita una animación, la información aparece mediante un temporizador independiente.
+Las pruebas locales no sustituyen la comprobación en móviles reales dentro de Instagram.
 
-SE CONSERVA
-El reloj interactivo, el diseño, los textos, el calendario y el anuncio del sábado 31 de octubre
-de 2026 a las 13:00, hora peninsular. La cuenta atrás no se reinicia al repetir el reloj.
-
-PRUEBA EN TU MÓVIL
-Las pruebas locales no sustituyen una comprobación en el iPhone 11 real dentro de Instagram.
-Esta entrega no cambia automáticamente el repositorio ni publica la web.
+FECHA
+config.js conserva 2026-10-31T13:00:00+01:00 y Europe/Madrid.
+GUARDAR LA FECHA descarga un evento de calendario para esa misma fecha.
+Este ZIP no publica automáticamente los cambios.

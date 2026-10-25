@@ -15,12 +15,16 @@
   const hourLabel = new Intl.DateTimeFormat('es-ES', { timeZone: zone, hour: '2-digit', minute: '2-digit', hour12: false }).format(deadlineDate);
   $('date-day').textContent = dateLabel.toLocaleUpperCase('es-ES');
   $('date-hour').textContent = `${year} · ${hourLabel} H · HORA PENINSULAR`;
+  $('door-date').textContent = new Intl.DateTimeFormat('es-ES',{timeZone:zone,day:'numeric',month:'long'}).format(deadlineDate).replace(' de ',' ').toLocaleUpperCase('es-ES');
+  $('door-weekday').textContent = new Intl.DateTimeFormat('es-ES',{timeZone:zone,weekday:'long'}).format(deadlineDate).toLocaleUpperCase('es-ES');
+  $('door-hour').textContent = hourLabel;
 
   const clock = $('clock'), discover = $('discover'), body = document.body;
-  let state = 'locked', progress = 0, animation = 0, revealTimer = 0, drag = null;
+  let state = 'locked', progress = 0, animation = 0, revealTimer = 0, drag = null, windingFallback = 0;
   const clamp = n => Math.max(0, Math.min(1, n));
   function setProgress(p) {
     progress = clamp(p);
+    body.classList.toggle('doors-ready', progress > .8);
     $('hour-hand').setAttribute('transform', `rotate(${305 + progress * 55} 300 300)`);
     $('minute-hand').setAttribute('transform', `rotate(${60 + progress * 660} 300 300)`);
     $('progress-ring').setAttribute('stroke-dashoffset', (1828.407 * (1 - progress)).toFixed(3));
@@ -53,25 +57,42 @@
   setInterval(updateCountdown, 1000);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) updateCountdown(); });
 
-  function midnight() {
-    if (state === 'striking' || state === 'revealed') return;
-    state = 'striking'; clock.setAttribute('aria-disabled','true'); setProgress(1);
-    discover.disabled=true;discover.textContent='EL SECRETO ESTÁ A PUNTO DE REVELARSE';
-    body.classList.add('striking');
-    burstGold(()=>{
-      state='revealed';body.classList.add('revealed');
-      $('teaser').hidden=true;$('reveal').hidden=false;
-      discover.hidden=true;$('replay').hidden=false;$('tiny-note').hidden=true;
-      $('hint').textContent='LA MEDIANOCHE GUARDA EL COMIENZO';
-      updateCountdown();
-      $('live').textContent=`La cuenta atrás ha comenzado. El ${dateLabel} de ${year}, a las ${hourLabel}, información sobre las entradas y una sorpresa.`;
-      $('reveal-title').focus({preventScroll:true});
-      if(innerWidth<=900)$('experience').scrollIntoView({behavior:'instant',block:'start'});
-    });
+  function finishOpening() {
+    if(state!=='opening')return;
+    clearTimeout(revealTimer);clearTimeout(windingFallback);state='revealed';
+    body.classList.add('revealed');body.classList.remove('opening','doors-ready');
+    $('teaser').hidden=true;$('reveal').hidden=false;
+    discover.hidden=true;$('replay').hidden=false;$('tiny-note').hidden=true;
+    $('hint').textContent='LA MEDIANOCHE GUARDA EL COMIENZO';
+    updateCountdown();
+    $('live').textContent=`El ${dateLabel} de ${year}, a las ${hourLabel}, información sobre las entradas y una sorpresa.`;
+    $('reveal-title').focus({preventScroll:true});
+    if(innerWidth<=900)$('experience').scrollIntoView({behavior:'instant',block:'start'});
   }
+  function midnight() {
+    if(state==='opening'||state==='revealed')return;
+    cancelAnimationFrame(animation);clearTimeout(windingFallback);state='opening';drag=null;
+    clock.setAttribute('aria-disabled','true');setProgress(1);
+    discover.disabled=true;discover.textContent='LA MEDIANOCHE ABRE EL SECRETO';
+    body.classList.add('opening');
+    // El temporizador permite revelar la información aunque el navegador omita las animaciones.
+    revealTimer=setTimeout(finishOpening,motion.matches?120:2100);
+  }
+  document.querySelector('.door-right').addEventListener('animationend',e=>{
+    if(e.animationName==='door-right-open'&&state==='opening'){
+      clearTimeout(revealTimer);revealTimer=setTimeout(finishOpening,650);
+    }
+  });
+  motion.addEventListener('change',()=>{
+    if(motion.matches){
+      if(state==='opening')finishOpening();
+      else if(state==='winding')midnight();
+    }
+  });
+  addEventListener('pageshow',()=>{if(state==='opening'&&document.hidden===false)finishOpening();});
+
   function advance() {
     if (state !== 'locked') return;
-    primeGold();
     drag = null;
     state = 'winding'; discover.disabled = true; discover.textContent = 'LAS DOCE ESTÁN CADA VEZ MÁS CERCA';
     if (motion.matches) { midnight(); return; }
@@ -82,6 +103,7 @@
       if (t < 1) animation = requestAnimationFrame(frame); else { animation = 0; midnight(); }
     }
     animation = requestAnimationFrame(frame);
+    windingFallback=setTimeout(()=>{if(state==='winding')midnight();},duration+250);
   }
   discover.addEventListener('click', advance);
   const angleAt = e => {
@@ -122,8 +144,8 @@
     }
   });
   $('replay').addEventListener('click', () => {
-    cancelAnimationFrame(animation); clearTimeout(revealTimer); stopGold();
-    state = 'locked'; drag = null; body.classList.remove('revealed','striking');
+    cancelAnimationFrame(animation); clearTimeout(revealTimer);clearTimeout(windingFallback);
+    state = 'locked'; drag = null; body.classList.remove('revealed','opening','doors-ready');
     $('reveal').hidden = true; $('teaser').hidden = false; $('replay').hidden = true;
     discover.hidden = false; discover.disabled = false;
     discover.innerHTML = 'DESCUBRIR EL SECRETO <span aria-hidden="true">↗</span>';
@@ -132,7 +154,7 @@
     clock.removeAttribute('aria-disabled'); setProgress(0);
     $('live').textContent = 'El reloj está listo para descubrir de nuevo el secreto.';
     clock.focus({ preventScroll: true });
-    if (innerWidth <= 900) $('experience').scrollIntoView({ behavior: motion.matches ? 'instant' : 'smooth' });
+    if (innerWidth <= 900) $('experience').scrollIntoView({ behavior: 'instant' });
   });
 
   function downloadText(text, filename, mime) {
@@ -155,86 +177,6 @@
       else $('share-status').textContent = `Copia este enlace: ${url.href}`;
     } catch (error) {
       if (error.name !== 'AbortError') $('share-status').textContent = `Puedes compartir este enlace: ${url.href}`;
-    }
-  });
-
-  const goldFilm=$('gold-film'),goldVideo=$('gold-video'),goldImage=$('gold-image');
-  let goldRun=0,goldActive=false,goldPrimed=false,goldReady=null,goldForced=false;
-  let goldReveal=0,goldLimit=0,goldWatch=0,goldStart=0,goldLastTime=-1,goldStalls=0;
-  function notifyGoldReady(){const ready=goldReady;goldReady=null;clearTimeout(goldReveal);if(ready)ready();}
-  function stopGold(){
-    goldRun++;goldActive=false;goldReady=null;
-    clearTimeout(goldReveal);clearTimeout(goldLimit);clearTimeout(goldStart);clearInterval(goldWatch);
-    goldVideo.pause();goldFilm.hidden=true;goldFilm.dataset.active='false';
-  }
-  function placeGold(){
-    const r=clock.getBoundingClientRect(),x=Math.max(20,Math.min(innerWidth-20,r.left+r.width/2));
-    const y=Math.max(40,Math.min(innerHeight-40,r.top+r.height/2));
-    goldFilm.style.setProperty('--gold-x',`${x}px`);goldFilm.style.setProperty('--gold-y',`${y}px`);
-  }
-  function primeGold(){
-    if(goldPrimed||goldActive||motion.matches)return;
-    goldPrimed=true;goldVideo.muted=true;const run=goldRun;
-    try{
-      const promise=goldVideo.play();
-      if(promise)promise.then(()=>{if(run===goldRun&&!goldActive){goldVideo.pause();try{goldVideo.currentTime=0;}catch{}}}).catch(()=>{goldPrimed=false;});
-    }catch{goldPrimed=false;}
-  }
-  function stillGold(){
-    clearTimeout(goldStart);clearInterval(goldWatch);goldVideo.pause();goldVideo.hidden=true;
-    goldImage.src='oro-poster.png?v=video-7';goldImage.hidden=false;goldFilm.dataset.mode='still';
-    notifyGoldReady();goldLimit=setTimeout(stopGold,8000);
-  }
-  function imageGold(run){
-    if(run!==goldRun||!goldActive||goldFilm.dataset.mode==='image')return;
-    clearTimeout(goldStart);clearInterval(goldWatch);goldVideo.pause();goldVideo.hidden=true;
-    goldFilm.dataset.mode='image';goldImage.hidden=false;
-    goldImage.src=`estallido-oro.webp?v=video-7&repeticion=${run}`;
-    goldImage.onerror=()=>{if(run===goldRun){goldImage.onerror=null;goldImage.src='oro-poster.png?v=video-7';notifyGoldReady();}};
-    clearTimeout(goldReveal);goldReveal=setTimeout(notifyGoldReady,1400);
-    clearTimeout(goldLimit);goldLimit=setTimeout(()=>{notifyGoldReady();stopGold();},7500);
-  }
-  function burstGold(onReady,forceAnimation=false){
-    stopGold();const run=goldRun;goldReady=onReady||null;goldForced=forceAnimation;
-    goldActive=true;goldFilm.hidden=false;goldFilm.dataset.active='true';placeGold();
-    goldImage.onerror=null;
-    if(motion.matches&&!forceAnimation){stillGold();return;}
-    goldFilm.dataset.mode='video';goldImage.hidden=true;goldVideo.hidden=false;
-    goldVideo.muted=true;goldVideo.defaultMuted=true;
-    try{goldVideo.currentTime=0;}catch{}
-    goldLastTime=-1;goldStalls=0;
-    goldStart=setTimeout(()=>imageGold(run),1800);
-    goldWatch=setInterval(()=>{
-      if(run!==goldRun||!goldActive||document.hidden)return;
-      const time=goldVideo.currentTime;
-      if(time>goldLastTime+.01){goldLastTime=time;goldStalls=0;goldFilm.dataset.time=time.toFixed(2);if(time>.04)clearTimeout(goldStart);}
-      else goldStalls++;
-      if(time>=1.15)notifyGoldReady();
-      if(goldStalls>=3)imageGold(run);
-    },400);
-    // La información nunca depende de que el navegador permita reproducir un medio.
-    goldReveal=setTimeout(notifyGoldReady,2800);
-    goldLimit=setTimeout(()=>{notifyGoldReady();stopGold();},10000);
-    try{const promise=goldVideo.play();if(promise)promise.catch(()=>imageGold(run));}
-    catch{imageGold(run);}
-  }
-  goldVideo.addEventListener('ended',()=>{if(goldActive&&goldFilm.dataset.mode==='video'){notifyGoldReady();stopGold();}});
-  goldVideo.addEventListener('error',()=>{if(goldActive)imageGold(goldRun);});
-  $('gold-replay').addEventListener('click',()=>burstGold(null,true));
-  // Se prepara la reproducción dentro del gesto, antes de que terminen de girar las agujas.
-  clock.addEventListener('pointerdown',primeGold,{passive:true});
-  discover.addEventListener('pointerdown',primeGold,{passive:true});
-  clock.addEventListener('keydown',primeGold);discover.addEventListener('keydown',primeGold);
-  document.addEventListener('visibilitychange',()=>{
-    if(!goldActive||goldFilm.dataset.mode!=='video')return;
-    if(document.hidden)goldVideo.pause();
-    else{goldStalls=0;try{const p=goldVideo.play();if(p)p.catch(()=>imageGold(goldRun));}catch{imageGold(goldRun);}}
-  });
-  addEventListener('pagehide',()=>{if(goldActive){notifyGoldReady();stopGold();}});
-  motion.addEventListener('change',()=>{
-    if(motion.matches){
-      if(goldActive&&!goldForced)stillGold();
-      if(state==='winding'){cancelAnimationFrame(animation);midnight();}
     }
   });
 
