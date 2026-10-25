@@ -71,6 +71,7 @@
   }
   function advance() {
     if (state !== 'locked') return;
+    primeGold();
     drag = null;
     state = 'winding'; discover.disabled = true; discover.textContent = 'LAS DOCE ESTÁN CADA VEZ MÁS CERCA';
     if (motion.matches) { midnight(); return; }
@@ -157,102 +158,85 @@
     }
   });
 
-  const goldCanvas=$('gold'),goldBackup=$('gold-backup');
-  let goldContext=null;
-  try{goldContext=goldCanvas.getContext('2d',{alpha:true});}catch{}
-  let goldFrame=0,goldWatchdog=0,goldLimit=0,goldStillTimer=0;
-  let goldReady=null,goldRunning=false,goldPaused=false,goldForced=false;
-  let goldElapsed=0,goldLast=0,goldWidth=0,goldHeight=0,goldFrames=0;
-  let goldOrigin=[0,0],goldFlakes=[],goldSprites=[];
-  function notifyGoldReady(){const ready=goldReady;goldReady=null;clearTimeout(goldWatchdog);if(ready)ready();}
+  const goldFilm=$('gold-film'),goldVideo=$('gold-video'),goldImage=$('gold-image');
+  let goldRun=0,goldActive=false,goldPrimed=false,goldReady=null,goldForced=false;
+  let goldReveal=0,goldLimit=0,goldWatch=0,goldStart=0,goldLastTime=-1,goldStalls=0;
+  function notifyGoldReady(){const ready=goldReady;goldReady=null;clearTimeout(goldReveal);if(ready)ready();}
   function stopGold(){
-    cancelAnimationFrame(goldFrame);clearTimeout(goldWatchdog);clearTimeout(goldLimit);clearTimeout(goldStillTimer);
-    goldFrame=0;goldRunning=false;goldPaused=false;goldReady=null;
-    if(goldContext){goldContext.setTransform(1,0,0,1,0,0);goldContext.clearRect(0,0,goldCanvas.width,goldCanvas.height);}
-    goldCanvas.hidden=true;goldBackup.hidden=true;goldCanvas.dataset.active='false';
+    goldRun++;goldActive=false;goldReady=null;
+    clearTimeout(goldReveal);clearTimeout(goldLimit);clearTimeout(goldStart);clearInterval(goldWatch);
+    goldVideo.pause();goldFilm.hidden=true;goldFilm.dataset.active='false';
   }
-  function prepareGoldSprites(){
-    if(goldSprites.length)return true;
+  function placeGold(){
+    const r=clock.getBoundingClientRect(),x=Math.max(20,Math.min(innerWidth-20,r.left+r.width/2));
+    const y=Math.max(40,Math.min(innerHeight-40,r.top+r.height/2));
+    goldFilm.style.setProperty('--gold-x',`${x}px`);goldFilm.style.setProperty('--gold-y',`${y}px`);
+  }
+  function primeGold(){
+    if(goldPrimed||goldActive||motion.matches)return;
+    goldPrimed=true;goldVideo.muted=true;const run=goldRun;
     try{
-      for(let i=0;i<24;i++){
-        const size=1+(i%8)*.5,c=document.createElement('canvas');c.width=c.height=24;
-        const p=c.getContext('2d',{alpha:true});if(!p)return false;
-        p.shadowColor='#f2d585';p.shadowBlur=5;p.fillStyle=i<8?'#f8df99':i<16?'#c6a35f':'#e6bf6d';
-        p.fillRect(12-size/2,12-size*.32,size,size*.64);goldSprites.push(c);
-      }
-      return true;
-    }catch{return false;}
-  }
-  function sizeGold(){
-    if(goldRunning||!goldContext)return;
-    goldWidth=Math.max(1,innerWidth);goldHeight=Math.max(1,innerHeight);
-    // El lienzo no supera 0,5 megapíxeles, incluso en pantallas Retina.
-    const ratio=Math.min(1.25,720/goldWidth,960/goldHeight,Math.sqrt(500000/(goldWidth*goldHeight)));
-    goldCanvas.width=Math.round(goldWidth*ratio);goldCanvas.height=Math.round(goldHeight*ratio);
-    goldContext.setTransform(goldCanvas.width/goldWidth,0,0,goldCanvas.height/goldHeight,0,0);
+      const promise=goldVideo.play();
+      if(promise)promise.then(()=>{if(run===goldRun&&!goldActive){goldVideo.pause();try{goldVideo.currentTime=0;}catch{}}}).catch(()=>{goldPrimed=false;});
+    }catch{goldPrimed=false;}
   }
   function stillGold(){
-    cancelAnimationFrame(goldFrame);goldRunning=false;goldCanvas.hidden=true;goldBackup.hidden=false;
-    goldCanvas.dataset.active='true';goldCanvas.dataset.mode='still';
-    notifyGoldReady();goldStillTimer=setTimeout(stopGold,8000);
+    clearTimeout(goldStart);clearInterval(goldWatch);goldVideo.pause();goldVideo.hidden=true;
+    goldImage.src='oro-poster.png?v=video-7';goldImage.hidden=false;goldFilm.dataset.mode='still';
+    notifyGoldReady();goldLimit=setTimeout(stopGold,8000);
   }
-  function paintGold(t){
-    const p=goldContext;p.clearRect(0,0,goldWidth,goldHeight);
-    const displacement=(1-Math.exp(-.9*t))/.9;
-    for(const f of goldFlakes){
-      if(t>=f.life)continue;
-      const alpha=Math.min(1,t/.1)*Math.min(1,(f.life-t)/1.5)*(.57+Math.sin(f.phase+t*3)*.23);
-      const x=Math.round(goldOrigin[0]+f.vx*displacement),y=Math.round(goldOrigin[1]+f.vy*t+7.5*t*t);
-      p.save();p.translate(x,y);p.rotate(f.spin+t*.8);p.globalAlpha=alpha;
-      p.scale(1,Math.max(.24,Math.abs(Math.cos(f.phase+t*2))));p.drawImage(goldSprites[f.sprite],-12,-12);p.restore();
-    }
-    goldFrames++;if(goldFrames%8===0)goldCanvas.dataset.frames=String(goldFrames);
-  }
-  function drawGold(now){
-    if(!goldRunning||goldPaused)return;
-    if(now-goldLast<32){goldFrame=requestAnimationFrame(drawGold);return;}
-    const dt=Math.min((now-goldLast)/1000,.05);goldLast=now;goldElapsed+=dt;
-    try{paintGold(goldElapsed);}catch{stillGold();return;}
-    if(goldElapsed>=1.05)notifyGoldReady();
-    if(goldElapsed<8)goldFrame=requestAnimationFrame(drawGold);else{notifyGoldReady();stopGold();}
+  function imageGold(run){
+    if(run!==goldRun||!goldActive||goldFilm.dataset.mode==='image')return;
+    clearTimeout(goldStart);clearInterval(goldWatch);goldVideo.pause();goldVideo.hidden=true;
+    goldFilm.dataset.mode='image';goldImage.hidden=false;
+    goldImage.src=`estallido-oro.webp?v=video-7&repeticion=${run}`;
+    goldImage.onerror=()=>{if(run===goldRun){goldImage.onerror=null;goldImage.src='oro-poster.png?v=video-7';notifyGoldReady();}};
+    clearTimeout(goldReveal);goldReveal=setTimeout(notifyGoldReady,1400);
+    clearTimeout(goldLimit);goldLimit=setTimeout(()=>{notifyGoldReady();stopGold();},7500);
   }
   function burstGold(onReady,forceAnimation=false){
-    stopGold();goldReady=onReady||null;goldForced=forceAnimation;goldCanvas.dataset.frames='0';
-    if((motion.matches&&!forceAnimation)||!goldContext||!prepareGoldSprites()){stillGold();return;}
-    sizeGold();goldCanvas.hidden=false;goldCanvas.dataset.active='true';goldCanvas.dataset.mode='animated';
-    const r=clock.getBoundingClientRect();
-    goldOrigin=[Math.max(20,Math.min(goldWidth-20,r.left+r.width/2)),Math.max(40,Math.min(goldHeight-40,r.top+r.height/2))];
-    let seed=26272026;const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
-    goldFlakes=Array.from({length:130},()=>{const a=random()*Math.PI*2,speed=45+random()*210;return {vx:Math.cos(a)*speed,vy:Math.sin(a)*speed-45,sprite:Math.floor(random()*24),spin:random()*6.3,phase:random()*6.3,life:3+random()*5};});
-    goldElapsed=.08;goldFrames=0;goldRunning=true;goldPaused=false;goldLast=performance.now();
-    goldCanvas.dataset.count='130';goldCanvas.dataset.pixels=String(goldCanvas.width*goldCanvas.height);
-    try{paintGold(goldElapsed);}catch{stillGold();return;}
-    goldWatchdog=setTimeout(notifyGoldReady,5000);
-    goldLimit=setTimeout(()=>{notifyGoldReady();stopGold();},16000);
-    goldFrame=requestAnimationFrame(drawGold);
+    stopGold();const run=goldRun;goldReady=onReady||null;goldForced=forceAnimation;
+    goldActive=true;goldFilm.hidden=false;goldFilm.dataset.active='true';placeGold();
+    goldImage.onerror=null;
+    if(motion.matches&&!forceAnimation){stillGold();return;}
+    goldFilm.dataset.mode='video';goldImage.hidden=true;goldVideo.hidden=false;
+    goldVideo.muted=true;goldVideo.defaultMuted=true;
+    try{goldVideo.currentTime=0;}catch{}
+    goldLastTime=-1;goldStalls=0;
+    goldStart=setTimeout(()=>imageGold(run),1800);
+    goldWatch=setInterval(()=>{
+      if(run!==goldRun||!goldActive||document.hidden)return;
+      const time=goldVideo.currentTime;
+      if(time>goldLastTime+.01){goldLastTime=time;goldStalls=0;goldFilm.dataset.time=time.toFixed(2);if(time>.04)clearTimeout(goldStart);}
+      else goldStalls++;
+      if(time>=1.15)notifyGoldReady();
+      if(goldStalls>=3)imageGold(run);
+    },400);
+    // La información nunca depende de que el navegador permita reproducir un medio.
+    goldReveal=setTimeout(notifyGoldReady,2800);
+    goldLimit=setTimeout(()=>{notifyGoldReady();stopGold();},10000);
+    try{const promise=goldVideo.play();if(promise)promise.catch(()=>imageGold(run));}
+    catch{imageGold(run);}
   }
-  function pauseGold(){
-    if(!goldRunning||goldPaused)return;goldPaused=true;
-    cancelAnimationFrame(goldFrame);clearTimeout(goldWatchdog);clearTimeout(goldLimit);
-  }
-  function resumeGold(){
-    if(!goldRunning||!goldPaused||document.hidden)return;
-    goldPaused=false;goldLast=performance.now();
-    if(goldReady)goldWatchdog=setTimeout(notifyGoldReady,5000);
-    goldLimit=setTimeout(()=>{notifyGoldReady();stopGold();},16000);
-    goldFrame=requestAnimationFrame(drawGold);
-  }
+  goldVideo.addEventListener('ended',()=>{if(goldActive&&goldFilm.dataset.mode==='video'){notifyGoldReady();stopGold();}});
+  goldVideo.addEventListener('error',()=>{if(goldActive)imageGold(goldRun);});
   $('gold-replay').addEventListener('click',()=>burstGold(null,true));
-  document.addEventListener('visibilitychange',()=>document.hidden?pauseGold():resumeGold());
-  addEventListener('pagehide',pauseGold);addEventListener('pageshow',resumeGold);
-  addEventListener('resize',sizeGold,{passive:true});
+  // Se prepara la reproducción dentro del gesto, antes de que terminen de girar las agujas.
+  clock.addEventListener('pointerdown',primeGold,{passive:true});
+  discover.addEventListener('pointerdown',primeGold,{passive:true});
+  clock.addEventListener('keydown',primeGold);discover.addEventListener('keydown',primeGold);
+  document.addEventListener('visibilitychange',()=>{
+    if(!goldActive||goldFilm.dataset.mode!=='video')return;
+    if(document.hidden)goldVideo.pause();
+    else{goldStalls=0;try{const p=goldVideo.play();if(p)p.catch(()=>imageGold(goldRun));}catch{imageGold(goldRun);}}
+  });
+  addEventListener('pagehide',()=>{if(goldActive){notifyGoldReady();stopGold();}});
   motion.addEventListener('change',()=>{
     if(motion.matches){
-      if(goldRunning&&!goldForced)stillGold();
+      if(goldActive&&!goldForced)stillGold();
       if(state==='winding'){cancelAnimationFrame(animation);midnight();}
     }
   });
-  setTimeout(prepareGoldSprites,0);
 
   setProgress(0);
 })();

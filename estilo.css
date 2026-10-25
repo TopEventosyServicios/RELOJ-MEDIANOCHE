@@ -42,3 +42,10 @@
  .reveal{animation:none}
  .flash{background:radial-gradient(ellipse at 50% 60%,#ffe9a32e,transparent 63%)}
 }
+
+/* El movimiento del oro se reproduce como medio; no se dibuja con JavaScript. */
+#gold-film{position:fixed;inset:0;z-index:20;pointer-events:none;mix-blend-mode:screen;overflow:hidden}
+#gold-film video,#gold-film img{position:absolute;left:var(--gold-x,50%);top:var(--gold-y,50%);transform:translate(-50%,-50%);width:600px;height:1066.667px;max-width:none;object-fit:fill;pointer-events:none}
+#gold-film video{filter:brightness(1.2) contrast(1.35)}
+.striking .flash,.striking .midnight-glow{display:none}
+.striking .gold-button:after{animation:none}

@@ -1,66 +1,32 @@
-TOP EVENTOS · COTILLÓN 26/27
-EL SECRETO DE MEDIANOCHE · ACTUALIZACIÓN 31 DE OCTUBRE
+TOP EVENTOS · RELOJ DE MEDIANOCHE · ORO EN VÍDEO · VERSIÓN 7
 
-NUEVA FECHA
-SÁBADO 31 DE OCTUBRE DE 2026 · 13:00 H · HORA PENINSULAR.
-Hora de publicación corregida a las 13:00.
-La cuenta atrás usa esa misma fecha fija para todos los visitantes.
+CÓMO SUBIRLO
+Descomprime el ZIP y sube todos sus archivos SUELTOS a RELOJ-MEDIANOCHE.
+No subas la carpeta ni el ZIP. Pulsa Commit changes y espera a que termine GitHub Pages.
+No necesitas borrar archivos anteriores ni cambiar el lenguaje que indica GitHub.
 
-CÓMO ACTUALIZAR TU REPOSITORIO
-1. Descomprime este ZIP. No subas el ZIP directamente.
-2. Abre tu repositorio RELOJ-MEDIANOCHE en GitHub.
-3. Pulsa Add file > Upload files.
-4. Sube TODOS los archivos descomprimidos SUELTOS, sin la carpeta:
-   index.html, config.js, estilo.css, reloj.js, top-eventos.png,
-   esfera-reloj.png y oro-respaldo.svg.
-   Puedes subir también este LEEME.txt.
-5. Confirma con Commit changes. Se sustituyen los archivos con el mismo nombre.
-6. Espera a que termine la publicación de GitHub Pages.
-7. Abre la versión nueva con este enlace:
-   https://topeventosyservicios.github.io/RELOJ-MEDIANOCHE/?v=oro-clasico-6
+ARCHIVOS DE LA WEB
+index.html, estilo.css, reloj.js, config.js, top-eventos.png, esfera-reloj.png,
+estallido-oro.mp4, estallido-oro.webp y oro-poster.png.
+LEEME.txt es esta guía opcional.
 
-No hace falta crear otro repositorio ni borrar archivos antiguos.
-La entrega es un paquete completo; incluye los archivos con versiones nuevas
-para evitar que el navegador siga usando los estilos o la fecha anteriores.
-Este paquete actualiza únicamente la web del reloj.
-No se ha publicado automáticamente ningún cambio en GitHub.
+ENLACE PARA PROBAR DESPUÉS DE SUBIRLO
+https://topeventosyservicios.github.io/RELOJ-MEDIANOCHE/?v=oro-video-7
 
-CAMBIOS
-Nueva fecha en la cuenta atrás, la pantalla del anuncio y el texto de respaldo.
-El anuncio de la información de las entradas y la sorpresa aparece más grande.
-Se mantienen retirados los textos secundarios solicitados.
-Vuelve el botón GUARDAR LA FECHA, junto a COMPARTIR.
-Se conservan el reloj, el giro de sus agujas, el destello, el oro y Compartir.
+CAMBIO PRINCIPAL
+El oro anterior está renderizado en un vídeo H.264 silencioso, sin controles y dentro de la página.
+Ya no utiliza un lienzo ni un bucle de JavaScript para mover las piezas.
+Si el navegador bloquea o detiene el vídeo, pasa a una imagen WebP animada transparente.
+La información aparece incluso cuando la reproducción no está disponible.
+Se prepara el vídeo durante el gesto de tocar el reloj o el botón.
+VER EL ESTALLIDO permite repetir solo el oro.
+Con Reducir movimiento activado, primero aparece oro quieto; el botón permite solicitar el movimiento.
+Se ha quitado el destello simultáneo para reducir el trabajo durante el estallido.
 
-FUNCIONAMIENTO
-Gira sobre el reloj en sentido horario o pulsa DESCUBRIR EL SECRETO.
-Al llegar a medianoche se descubre el anuncio y la cuenta atrás real.
-VOLVER A VER EL RELOJ repite la interacción sin reiniciar esa cuenta atrás.
-La experiencia es silenciosa y funciona también con teclado y movimiento reducido.
+SE CONSERVA
+El reloj interactivo, el diseño, los textos, el calendario y el anuncio del sábado 31 de octubre
+de 2026 a las 13:00, hora peninsular. La cuenta atrás no se reinicia al repetir el reloj.
 
-FECHA Y ANUNCIO DEFINITIVO
-La fecha se configura en config.js:
-2026-10-31T13:00:00+01:00 significa 31/10/2026 a las 13:00, hora peninsular.
-Al terminar, el contador se queda a cero y aparece el aviso de que ha llegado la fecha.
-Si más adelante introduces una dirección en enlaceAnuncio, también en config.js,
-el botón DESCUBRIR EL ANUNCIO aparecerá a partir de esa fecha.
-Si cambias la fecha de nuevo, actualiza config.js y el texto de respaldo de index.html.
-
-GUARDAR LA FECHA
-Después de descubrir el anuncio, pulsa GUARDAR LA FECHA para obtener un evento
-de calendario con el sábado 31/10/2026 a las 13:00, hora peninsular.
-El navegador puede abrirlo en el calendario o descargar el archivo .ics para importarlo.
-La persona confirma que quiere añadirlo en su aplicación de calendario.
-No se solicitan permisos de notificaciones ni se añaden avisos automáticos.
-
-ORO CLÁSICO · VERSIÓN LIGERA 6
-Se recuperan las 130 pequeñas piezas rectangulares de la versión anterior.
-La esfera conserva su aspecto y ahora se carga como una imagen fija; las agujas siguen siendo interactivas.
-El oro usa un solo lienzo pequeño y dibujos precalculados, sin desenfoques repetidos por pieza.
-El anuncio aparece después del primer tramo visible del estallido, sin desplazamiento suave simultáneo.
-VER EL ESTALLIDO permite repetir solo el oro sin volver a mover el reloj.
-Si está activado Reducir movimiento, primero se muestra oro quieto. Ese botón
-permite solicitar expresamente el estallido animado, manteniendo el resto de la página sin animaciones.
-Si no se puede usar el dibujo animado, aparece la alternativa estática y la información sigue disponible.
-La publicación no se ha realizado automáticamente. Es necesario probar esta versión
-en el iPhone 11 real dentro de Instagram para confirmar el comportamiento en ese aparato.
+PRUEBA EN TU MÓVIL
+Las pruebas locales no sustituyen una comprobación en el iPhone 11 real dentro de Instagram.
+Esta entrega no cambia automáticamente el repositorio ni publica la web.

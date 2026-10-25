@@ -4,23 +4,25 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#0c0d0b">
-  <meta name="cotillon-version" content="medianoche-oro-clasico-6">
+  <meta name="cotillon-version" content="medianoche-oro-video-7">
   <meta name="description" content="Hay momentos que merecen la espera. Lleva las agujas a medianoche y descubre el próximo anuncio de TOP EVENTOS para el Cotillón 26/27.">
   <meta property="og:title" content="Algo grande está a punto de pasar · Cotillón 26/27">
   <meta property="og:description" content="Un reloj. Un secreto. Lleva las agujas a medianoche y descubre la fecha.">
   <meta property="og:type" content="website">
   <title>El secreto de medianoche · Cotillón 26/27</title>
-  <link rel="preload" as="image" href="esfera-reloj.png?v=oro-clasico-6">
-  <link rel="preload" as="image" href="oro-respaldo.svg?v=oro-clasico-6">
+  <link rel="preload" as="image" href="esfera-reloj.png?v=video-7">
+  <link rel="preload" as="image" href="oro-poster.png?v=video-7">
   <link rel="icon" href="top-eventos.png" type="image/png">
-  <link rel="stylesheet" href="estilo.css?v=medianoche-oro-clasico-6">
-  <script src="config.js?v=medianoche-oro-clasico-6" defer></script>
-  <script src="reloj.js?v=medianoche-oro-clasico-6" defer></script>
+  <link rel="stylesheet" href="estilo.css?v=medianoche-oro-video-7">
+  <script src="config.js?v=medianoche-oro-video-7" defer></script>
+  <script src="reloj.js?v=medianoche-oro-video-7" defer></script>
 </head>
 <body>
   <div class="ambient" aria-hidden="true"></div>
-  <canvas id="gold" aria-hidden="true" data-active="false" hidden></canvas>
-  <img id="gold-backup" src="oro-respaldo.svg?v=oro-clasico-6" alt="" aria-hidden="true" hidden>
+  <div id="gold-film" aria-hidden="true" data-active="false" hidden>
+    <video id="gold-video" src="estallido-oro.mp4?v=video-7" poster="oro-poster.png?v=video-7" preload="auto" muted playsinline webkit-playsinline disablepictureinpicture disableremoteplayback></video>
+    <img id="gold-image" src="oro-poster.png?v=video-7" alt="" hidden>
+  </div>
   <header class="masthead">
     <a class="brand" href="./" aria-label="TOP EVENTOS · inicio"><img src="top-eventos.png" width="274" height="283" alt="TOP EVENTOS"></a>
     <span class="edition">COTILLÓN <b>26 / 27</b></span>
@@ -60,7 +62,7 @@
         <div id="clock" class="clock" role="slider" tabindex="0" aria-label="Gira las agujas hasta medianoche. También puedes pulsar para avanzar." aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="Las diez y diez. Gira hasta medianoche." aria-orientation="horizontal" aria-describedby="hint">
           <svg viewBox="0 0 600 600" role="img" aria-label="Reloj negro con bisel y agujas doradas" id="clock-svg">
             <defs><linearGradient id="gold-metal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#4e391b"/><stop offset=".17" stop-color="#e1bb6d"/><stop offset=".29" stop-color="#fff0bd"/><stop offset=".46" stop-color="#96703b"/><stop offset=".6" stop-color="#f3d993"/><stop offset=".81" stop-color="#88602e"/><stop offset="1" stop-color="#c79b51"/></linearGradient><radialGradient id="hub"><stop stop-color="#fff2c9"/><stop offset=".3" stop-color="#ebc776"/><stop offset=".6" stop-color="#896331"/><stop offset=".85" stop-color="#f9dc9b"/><stop offset="1" stop-color="#634a28"/></radialGradient></defs>
-            <image id="clock-face-image" href="esfera-reloj.png?v=oro-clasico-6" x="0" y="0" width="600" height="600"/>
+            <image id="clock-face-image" href="esfera-reloj.png?v=video-7" x="0" y="0" width="600" height="600"/>
             <g id="hour-hand" transform="rotate(305 300 300)"><path d="M300 150 310 195 305 302 300 321 295 302 290 195Z" fill="url(#gold-metal)" stroke="#dfbd78" stroke-width=".6"/><path d="M300 167V304" stroke="#fff1b8" stroke-opacity=".65" stroke-width="1"/></g>
             <g id="minute-hand" transform="rotate(60 300 300)"><path d="M300 87 305 125 303 307 300 328 297 307 295 125Z" fill="url(#gold-metal)" stroke="#f0d598" stroke-width=".5"/><path d="M300 105V310" stroke="#fff3cd" stroke-opacity=".8" stroke-width=".8"/></g>
             <g id="second-hand" class="second-hand"><path d="M300 78V338" stroke="#caa35b" stroke-width="1"/><circle cx="300" cy="333" r="6" fill="none" stroke="#caa35b" stroke-width="1"/></g>
