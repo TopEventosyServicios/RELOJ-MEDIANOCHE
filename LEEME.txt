@@ -1,53 +1,45 @@
 TOP EVENTOS · COTILLÓN 26/27
-EL SECRETO DE MEDIANOCHE
+EL SECRETO DE MEDIANOCHE · ACTUALIZACIÓN 31 DE OCTUBRE
 
-FECHA CONFIGURADA
-Sábado 7 de noviembre de 2026, a las 20:00, hora de España peninsular.
-La fecha la ha indicado el usuario; la hora de las 20:00 se ha usado como referencia.
-La cuenta atrás es la misma para todos y no se reinicia al entrar o recargar.
+NUEVA FECHA
+SÁBADO 31 DE OCTUBRE DE 2026 · 13:00 H · HORA PENINSULAR.
+Hora de publicación corregida a las 13:00.
+La cuenta atrás usa esa misma fecha fija para todos los visitantes.
 
-CÓMO PUBLICAR EN UN REPOSITORIO NUEVO
-1. Descomprime este ZIP. No subas el ZIP directamente a GitHub.
-2. Entra en https://github.com/new con tu cuenta TopEventosyServicios.
-3. Nombre sugerido: MEDIANOCHE-26-27. Marca Public y pulsa Create repository.
-4. Pulsa uploading an existing file. Si ya hay archivos: Add file > Upload files.
-5. Arrastra TODOS los archivos descomprimidos SUELTOS, sin la carpeta que los contiene.
-   index.html tiene que quedar en la primera pantalla del repositorio.
-6. Confirma la subida con Commit changes (o el botón equivalente de confirmación).
-7. Abre Settings > Pages.
-8. Source: Deploy from a branch. Branch: main. Folder: / (root). Pulsa Save.
-9. Espera a que termine la publicación. En Settings > Pages encontrarás Visit site.
+CÓMO ACTUALIZAR TU REPOSITORIO
+1. Descomprime este ZIP. No subas el ZIP directamente.
+2. Abre tu repositorio MEDIANOCHE-26-27 en GitHub.
+3. Pulsa Add file > Upload files.
+4. Sube TODOS los archivos descomprimidos SUELTOS, sin la carpeta:
+   index.html, config.js, estilo.css, reloj.js y top-eventos.png.
+   Puedes subir también este LEEME.txt.
+5. Confirma con Commit changes. Se sustituyen los archivos con el mismo nombre.
+6. Espera a que termine la publicación de GitHub Pages.
+7. Abre la versión nueva con este enlace:
+   https://topeventosyservicios.github.io/MEDIANOCHE-26-27/?v=31octubre-13h-3
 
-Si usas ese nombre y esa cuenta, el enlace esperado, UNA VEZ PUBLICADO, será:
-https://topeventosyservicios.github.io/MEDIANOCHE-26-27/
+No hace falta crear otro repositorio ni borrar archivos antiguos.
+La entrega es un paquete completo; incluye los archivos con versiones nuevas
+para evitar que el navegador siga usando los estilos o la fecha anteriores.
+Este paquete actualiza únicamente la web del reloj.
+No se ha publicado automáticamente ningún cambio en GitHub.
 
-Esta entrega no ha creado el repositorio ni publicado la web.
-Usa un repositorio nuevo para conservar las experiencias anteriores.
+CAMBIOS
+Nueva fecha en la cuenta atrás, la pantalla del anuncio y el texto de respaldo.
+El anuncio de la información de las entradas y la sorpresa aparece más grande.
+Se han retirado los textos secundarios solicitados y la descarga del calendario.
+Se conservan el reloj, el giro de sus agujas, el destello, el oro y Compartir.
 
 FUNCIONAMIENTO
 Gira sobre el reloj en sentido horario o pulsa DESCUBRIR EL SECRETO.
-Al llegar a las doce aparecen luz, partículas doradas y el anuncio con la cuenta atrás.
-Hay botones para guardar la fecha en el calendario y compartir el enlace.
-En algunos móviles, el archivo de calendario se descarga: hay que abrirlo para importarlo.
-No se piden permisos de notificaciones ni se envían recordatorios desde la web.
-La experiencia es silenciosa. Funciona sin servicios externos ni instalaciones.
-Con movimiento reducido, el anuncio aparece directamente tras pulsar.
-También se puede usar el teclado: flechas para avanzar y Fin o Enter para descubrir.
-VOLVER A VER EL RELOJ repite la experiencia sin cambiar la cuenta atrás real.
+Al llegar a medianoche se descubre el anuncio y la cuenta atrás real.
+VOLVER A VER EL RELOJ repite la interacción sin reiniciar esa cuenta atrás.
+La experiencia es silenciosa y funciona también con teclado y movimiento reducido.
 
-CAMBIAR LA FECHA U HORA MÁS ADELANTE
-Abre config.js y cambia fechaAnuncio. En noviembre, +01:00 es la hora peninsular.
-Por ejemplo: 2026-11-07T20:00:00+01:00 significa 7/11/2026 a las 20:00.
-Guarda y vuelve a subir config.js. Si cambias también la fecha de la campaña, actualiza
-el texto de respaldo de index.html dentro de <noscript>.
-
-AL TERMINAR LA CUENTA ATRÁS
-El contador se queda a cero y aparece el aviso de que ha llegado la fecha.
-La web no inventa precios, disponibilidad ni detalles de una sorpresa aún no facilitada.
-Cuando tengas el enlace del anuncio definitivo, puedes ponerlo entre las comillas
-de enlaceAnuncio en config.js. Desde la fecha configurada aparecerá DESCUBRIR EL ANUNCIO.
-Si enlaceAnuncio está vacío, se mostrará el mensaje para consultar las novedades de TOP EVENTOS.
-
-DOCUMENTACIÓN DE GITHUB
-https://docs.github.com/en/repositories/working-with-files/managing-files/adding-a-file-to-a-repository
-https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site
+FECHA Y ANUNCIO DEFINITIVO
+La fecha se configura en config.js:
+2026-10-31T13:00:00+01:00 significa 31/10/2026 a las 13:00, hora peninsular.
+Al terminar, el contador se queda a cero y aparece el aviso de que ha llegado la fecha.
+Si más adelante introduces una dirección en enlaceAnuncio, también en config.js,
+el botón DESCUBRIR EL ANUNCIO aparecerá a partir de esa fecha.
+Si cambias la fecha de nuevo, actualiza config.js y el texto de respaldo de index.html.
