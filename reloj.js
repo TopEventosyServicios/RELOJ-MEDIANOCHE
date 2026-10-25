@@ -150,6 +150,17 @@
     if (innerWidth <= 900) $('experience').scrollIntoView({ behavior: motion.matches ? 'instant' : 'smooth' });
   });
 
+  function downloadText(text, filename, mime) {
+    const url = URL.createObjectURL(new Blob([text], { type: mime })), link = document.createElement('a');
+    link.href = url; link.download = filename; document.body.append(link); link.click(); link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+  }
+  function icsDate(d) { return d.toISOString().replace(/[-:]/g,'').replace(/\.\d{3}Z$/,'Z'); }
+  $('calendar').addEventListener('click', () => {
+    const text = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//TOP EVENTOS//Cotillon 26-27//ES','CALSCALE:GREGORIAN','BEGIN:VEVENT',`UID:cotillon-anuncio-${deadline}@topeventos`,`DTSTAMP:${icsDate(new Date())}`,`DTSTART:${icsDate(deadlineDate)}`,`DTEND:${icsDate(new Date(deadline+15*60*1000))}`,'SUMMARY:Cotillón 26/27 - El anuncio de TOP EVENTOS','DESCRIPTION:Información sobre las entradas y una sorpresa. Consulta las novedades de TOP EVENTOS.','END:VEVENT','END:VCALENDAR',''].join('\r\n');
+    downloadText(text, 'Fecha-Cotillon-26-27.ics', 'text/calendar;charset=utf-8');
+    $('share-status').textContent = 'Fecha preparada para tu calendario.';
+  });
   $('share').addEventListener('click', async () => {
     const url = new URL(location.href); url.hash = ''; url.search = '';
     const info = { title: 'El secreto de medianoche · Cotillón 26/27', text: 'Lleva las agujas a las doce y descubre lo que viene. TOP EVENTOS.', url: url.href };

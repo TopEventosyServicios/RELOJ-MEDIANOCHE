@@ -8,7 +8,7 @@ La cuenta atrás usa esa misma fecha fija para todos los visitantes.
 
 CÓMO ACTUALIZAR TU REPOSITORIO
 1. Descomprime este ZIP. No subas el ZIP directamente.
-2. Abre tu repositorio MEDIANOCHE-26-27 en GitHub.
+2. Abre tu repositorio RELOJ-MEDIANOCHE en GitHub.
 3. Pulsa Add file > Upload files.
 4. Sube TODOS los archivos descomprimidos SUELTOS, sin la carpeta:
    index.html, config.js, estilo.css, reloj.js y top-eventos.png.
@@ -16,7 +16,7 @@ CÓMO ACTUALIZAR TU REPOSITORIO
 5. Confirma con Commit changes. Se sustituyen los archivos con el mismo nombre.
 6. Espera a que termine la publicación de GitHub Pages.
 7. Abre la versión nueva con este enlace:
-   https://topeventosyservicios.github.io/MEDIANOCHE-26-27/?v=31octubre-13h-3
+   https://topeventosyservicios.github.io/RELOJ-MEDIANOCHE/?v=31octubre-13h-cal4
 
 No hace falta crear otro repositorio ni borrar archivos antiguos.
 La entrega es un paquete completo; incluye los archivos con versiones nuevas
@@ -27,7 +27,8 @@ No se ha publicado automáticamente ningún cambio en GitHub.
 CAMBIOS
 Nueva fecha en la cuenta atrás, la pantalla del anuncio y el texto de respaldo.
 El anuncio de la información de las entradas y la sorpresa aparece más grande.
-Se han retirado los textos secundarios solicitados y la descarga del calendario.
+Se mantienen retirados los textos secundarios solicitados.
+Vuelve el botón GUARDAR LA FECHA, junto a COMPARTIR.
 Se conservan el reloj, el giro de sus agujas, el destello, el oro y Compartir.
 
 FUNCIONAMIENTO
@@ -43,3 +44,10 @@ Al terminar, el contador se queda a cero y aparece el aviso de que ha llegado la
 Si más adelante introduces una dirección en enlaceAnuncio, también en config.js,
 el botón DESCUBRIR EL ANUNCIO aparecerá a partir de esa fecha.
 Si cambias la fecha de nuevo, actualiza config.js y el texto de respaldo de index.html.
+
+GUARDAR LA FECHA
+Después de descubrir el anuncio, pulsa GUARDAR LA FECHA para obtener un evento
+de calendario con el sábado 31/10/2026 a las 13:00, hora peninsular.
+El navegador puede abrirlo en el calendario o descargar el archivo .ics para importarlo.
+La persona confirma que quiere añadirlo en su aplicación de calendario.
+No se solicitan permisos de notificaciones ni se añaden avisos automáticos.

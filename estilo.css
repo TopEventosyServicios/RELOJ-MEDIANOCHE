@@ -26,3 +26,5 @@
  .reveal .announcement strong{font-size:29px}
  .reveal .announcement strong span{font-size:13px}
 }
+
+.reveal-actions .text-button{min-height:44px}
