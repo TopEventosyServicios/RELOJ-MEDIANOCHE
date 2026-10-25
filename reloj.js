@@ -83,7 +83,7 @@
       $('live').textContent = `La cuenta atrás ha comenzado. El ${dateLabel} de ${year}, a las ${hourLabel}, información sobre las entradas y una sorpresa.`;
       $('reveal-title').focus({ preventScroll: true });
       if (innerWidth <= 900) $('experience').scrollIntoView({ behavior: motion.matches ? 'instant' : 'smooth', block: 'start' });
-    }, motion.matches ? 0 : 850);
+    }, motion.matches ? 0 : 1250);
   }
   function advance() {
     if (state !== 'locked') return;
@@ -173,38 +173,77 @@
     }
   });
 
-  const canvas = $('gold'), ctx = canvas.getContext('2d');
-  let goldFrame = 0, flakes = [], goldStarted = 0;
-  function sizeGold() {
-    const dpr = Math.min(devicePixelRatio || 1, 2);
-    canvas.width = Math.round(innerWidth*dpr); canvas.height = Math.round(innerHeight*dpr);
-    if (ctx) ctx.setTransform(dpr,0,0,dpr,0,0);
+  // El oro se compone de elementos independientes: no depende de canvas,
+  // permisos multimedia ni de volver a dibujar al cambiar la barra del móvil.
+  const goldLayer = $('gold');
+  let goldTimer = 0, goldRemaining = 0, goldTimerStarted = 0, goldActive = false;
+  function stopGold() {
+    clearTimeout(goldTimer); goldTimer = 0; goldActive = false; goldRemaining = 0;
+    goldLayer.hidden = true; while(goldLayer.firstChild)goldLayer.removeChild(goldLayer.firstChild);
+    goldLayer.className = ''; goldLayer.dataset.active = 'false';
   }
-  function stopGold() { cancelAnimationFrame(goldFrame); goldFrame = 0; flakes = []; if (ctx) ctx.clearRect(0,0,innerWidth,innerHeight); }
+  function armGoldTimer(milliseconds) {
+    clearTimeout(goldTimer); goldRemaining = milliseconds; goldTimerStarted = performance.now();
+    goldTimer = setTimeout(stopGold, milliseconds);
+  }
+  function pauseGold() {
+    if (!goldActive || goldLayer.classList.contains('gold-paused')) return;
+    clearTimeout(goldTimer); goldRemaining = Math.max(1, goldRemaining - (performance.now() - goldTimerStarted));
+    goldLayer.classList.add('gold-paused');
+  }
+  function resumeGold() {
+    if (!goldActive || document.hidden) return;
+    goldLayer.classList.remove('gold-paused'); armGoldTimer(goldRemaining || 8200);
+  }
   function burstGold() {
-    if (!ctx || motion.matches) return;
-    stopGold(); sizeGold();
-    const r = clock.getBoundingClientRect(), x = r.left+r.width/2, y = r.top+r.height/2;
-    flakes = Array.from({ length: 130 }, () => {
-      const a = Math.random()*Math.PI*2, speed = 45+Math.random()*210;
-      return { x,y,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed-45,size:1+Math.random()*3.5,spin:Math.random()*6.3,phase:Math.random()*6.3,life:3+Math.random()*5 };
-    });
-    goldStarted = performance.now(); let last = goldStarted;
-    function frame(now) {
-      const dt = Math.min((now-last)/1000,.04), elapsed=(now-goldStarted)/1000; last=now;
-      ctx.clearRect(0,0,innerWidth,innerHeight);
-      for (const f of flakes) {
-        f.x+=f.vx*dt; f.y+=f.vy*dt; f.vx*=Math.pow(.985,dt*60); f.vy+=15*dt;
-        const alpha=clamp((f.life-elapsed)/1.5); if (!alpha) continue;
-        ctx.save();ctx.translate(f.x,f.y);ctx.rotate(f.spin+elapsed*.8);ctx.globalAlpha=alpha*(.5+Math.sin(f.phase+elapsed*3)*.25);
-        ctx.fillStyle=f.size>2.8?'#f8df99':'#c6a35f';ctx.shadowColor='#f2d585';ctx.shadowBlur=7;
-        ctx.fillRect(-f.size/2,-f.size/2,f.size,Math.max(.6,f.size*Math.abs(Math.cos(f.phase+elapsed*2))));ctx.restore();
-      }
-      if (elapsed<8) goldFrame=requestAnimationFrame(frame); else stopGold();
+    stopGold();
+    goldLayer.hidden = false;
+    goldLayer.classList.toggle('gold-still', motion.matches);
+    const rect = goldLayer.getBoundingClientRect(), clockRect = clock.getBoundingClientRect();
+    const sx = Math.max(.12, Math.min(.88, (clockRect.left + clockRect.width/2 - rect.left) / Math.max(rect.width,1)));
+    const sy = Math.max(.22, Math.min(.75, (clockRect.top + clockRect.height/2 - rect.top) / Math.max(rect.height,1)));
+    const fragment = document.createDocumentFragment();
+    let seed = 26272026;
+    const random = () => { seed = (Math.imul(seed,1664525)+1013904223) >>> 0; return seed/4294967296; };
+    for (let i=0; i<176; i++) {
+      const falling = i>=128, star = i%8===0;
+      const angle = random()*Math.PI*2, distance = .32+random()*.63;
+      const endX = Math.max(.02,Math.min(.98,sx+Math.cos(angle)*distance*.9));
+      const endY = Math.max(.02,Math.min(.98,sy+Math.sin(angle)*distance*.9));
+      const px = falling ? random() : sx, py = falling ? -.06-random()*.12 : sy;
+      const dx = falling ? (random()-.5)*24 : (endX-sx)*100;
+      const dy = falling ? 122 : (endY-sy)*100;
+      const size = star ? 11+random()*7 : 5+random()*6;
+      const span = document.createElement('span');
+      span.className = 'gold-piece'+(star?' gold-star':'')+(falling?' gold-falling':'');
+      const style=span.style;
+      style.setProperty('--sx',(px*100).toFixed(3)+'%'); style.setProperty('--sy',(py*100).toFixed(3)+'%');
+      style.setProperty('--dx',dx.toFixed(3)+'vw'); style.setProperty('--dy',dy.toFixed(3)+'vh');
+      style.setProperty('--turn',((random()-.5)*1080).toFixed(2)+'deg');
+      style.setProperty('--duration',(falling?5.4+random()*1.2:2.8+random()*1.8).toFixed(3)+'s');
+      style.setProperty('--delay',(falling?.25+random()*1.1:(i%3)*.11+random()*.08).toFixed(3)+'s');
+      style.setProperty('--still-x',(random()*96+2).toFixed(3)+'%');
+      style.setProperty('--still-y',(random()*94+3).toFixed(3)+'%');
+      // Tamaños y color de respaldo para una hoja de estilos aún no disponible.
+      style.width=size.toFixed(2)+'px'; style.height=(star?size:size*(.45+random()*.6)).toFixed(2)+'px';
+      style.backgroundColor = i%3===0 ? '#fff0a9' : '#e9ba4f';
+      fragment.appendChild(span);
     }
-    goldFrame=requestAnimationFrame(frame);
+    goldLayer.appendChild(fragment); goldActive = true;
+    goldLayer.dataset.active = 'true'; goldLayer.dataset.mode = motion.matches?'still':'animated';
+    goldLayer.dataset.count = '176';
+    armGoldTimer(8200);
+    if (document.hidden) pauseGold();
   }
-  addEventListener('resize', sizeGold, { passive:true });
-  motion.addEventListener('change', () => { if (motion.matches) { stopGold(); if (state === 'winding') {cancelAnimationFrame(animation);midnight();} } });
+  document.addEventListener('visibilitychange', () => document.hidden ? pauseGold() : resumeGold());
+  addEventListener('pagehide', pauseGold);
+  addEventListener('pageshow', () => { if(goldActive&&goldLayer.classList.contains('gold-paused'))resumeGold(); });
+  motion.addEventListener('change', () => {
+    if (motion.matches) {
+      if (goldActive) {goldLayer.classList.add('gold-still');goldLayer.dataset.mode='still';}
+      if (state==='winding') {cancelAnimationFrame(animation);midnight();}
+    }
+  });
+
   setProgress(0);
 })();

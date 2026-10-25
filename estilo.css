@@ -28,3 +28,14 @@
 }
 
 .reveal-actions .text-button{min-height:44px}
+
+/* Capa independiente del reloj: sigue visible al mostrar el anuncio y al hacer scroll. */
+#gold{position:fixed;inset:0;width:100%;height:100%;z-index:20;overflow:hidden;pointer-events:none;isolation:isolate;contain:strict}
+#gold .gold-piece{position:absolute;left:var(--sx);top:var(--sy);display:block;pointer-events:none;border-radius:1px;opacity:.95;background-image:linear-gradient(135deg,#fff6c1 0%,#e9ad28 30%,#ffeb9b 52%,#a06d18 82%,#ffe298);box-shadow:0 0 3px #f0c95d77;transform:translate3d(var(--dx),var(--dy),0) rotate(var(--turn));animation:gold-flight var(--duration) cubic-bezier(.12,.6,.23,1) var(--delay) both}
+#gold .gold-star{-webkit-clip-path:polygon(50% 0,61% 36%,100% 50%,61% 64%,50% 100%,39% 64%,0 50%,39% 36%);clip-path:polygon(50% 0,61% 36%,100% 50%,61% 64%,50% 100%,39% 64%,0 50%,39% 36%)}
+#gold .gold-falling{animation-name:gold-fall;animation-timing-function:linear}
+#gold.gold-paused .gold-piece{animation-play-state:paused}
+#gold.gold-still .gold-piece{left:var(--still-x);top:var(--still-y);transform:rotate(var(--turn));opacity:.83;animation:none}
+@keyframes gold-flight{0%{opacity:0;transform:translate3d(0,0,0) rotate(0) scale(.45)}5%{opacity:1}18%{opacity:1}70%{opacity:.95}100%{opacity:0;transform:translate3d(var(--dx),var(--dy),0) rotate(var(--turn)) scale(.85)}}
+@keyframes gold-fall{0%{opacity:0;transform:translate3d(0,0,0) rotate(0)}8%{opacity:.96}80%{opacity:.9}100%{opacity:0;transform:translate3d(var(--dx),var(--dy),0) rotate(var(--turn))}}
+@media(prefers-reduced-motion:reduce){#gold .gold-piece{left:var(--still-x);top:var(--still-y);opacity:.83;transform:rotate(var(--turn));animation:none}}

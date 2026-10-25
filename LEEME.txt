@@ -16,7 +16,7 @@ CÓMO ACTUALIZAR TU REPOSITORIO
 5. Confirma con Commit changes. Se sustituyen los archivos con el mismo nombre.
 6. Espera a que termine la publicación de GitHub Pages.
 7. Abre la versión nueva con este enlace:
-   https://topeventosyservicios.github.io/RELOJ-MEDIANOCHE/?v=31octubre-13h-cal4
+   https://topeventosyservicios.github.io/RELOJ-MEDIANOCHE/?v=oro-movil-5
 
 No hace falta crear otro repositorio ni borrar archivos antiguos.
 La entrega es un paquete completo; incluye los archivos con versiones nuevas
@@ -51,3 +51,11 @@ de calendario con el sábado 31/10/2026 a las 13:00, hora peninsular.
 El navegador puede abrirlo en el calendario o descargar el archivo .ics para importarlo.
 La persona confirma que quiere añadirlo en su aplicación de calendario.
 No se solicitan permisos de notificaciones ni se añaden avisos automáticos.
+
+ORO EN MÓVILES · VERSIÓN 5
+La explosión usa partículas HTML/CSS: ya no depende de un lienzo de dibujo.
+Hay 176 piezas doradas más grandes, con dos fases de salida y caída.
+La capa permanece visible al mostrar la información o cambiar las barras del navegador.
+El efecto se pausa al salir de la pestaña y continúa al regresar.
+Con Reducir movimiento se muestra oro estático abundante, en vez de ocultarlo.
+Se conservan fecha, reloj, información, calendario y compartir.
